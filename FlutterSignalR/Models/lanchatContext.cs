@@ -2,9 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-// Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.
-// If you have enabled NRTs for your project, then un-comment the following line:
-// #nullable disable
+#nullable disable
 
 namespace FlutterSignalR.Models
 {
@@ -19,20 +17,21 @@ namespace FlutterSignalR.Models
         {
         }
 
-        public virtual DbSet<Message> Message { get; set; }
-        public virtual DbSet<User> User { get; set; }
+        public virtual DbSet<Message> Messages { get; set; }
+        public virtual DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
                 optionsBuilder.UseSqlServer("Server=.\\sqlexpress;Database=lanchat;Trusted_Connection=True");
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasAnnotation("Relational:Collation", "Arabic_CI_AS");
+
             modelBuilder.Entity<Message>(entity =>
             {
                 entity.ToTable("message");
@@ -40,14 +39,14 @@ namespace FlutterSignalR.Models
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Date)
-                    .HasColumnName("date")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("date");
 
                 entity.Property(e => e.Msg)
-                    .HasColumnName("msg")
-                    .HasMaxLength(400);
+                    .HasMaxLength(400)
+                    .HasColumnName("msg");
 
-                entity.Property(e => e.Reciever).HasColumnName("reciever");
+                entity.Property(e => e.Receiver).HasColumnName("receiver");
 
                 entity.Property(e => e.Sender).HasColumnName("sender");
             });
@@ -59,12 +58,12 @@ namespace FlutterSignalR.Models
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Name)
-                    .HasColumnName("name")
-                    .HasMaxLength(200);
+                    .HasMaxLength(200)
+                    .HasColumnName("name");
 
                 entity.Property(e => e.Pass)
-                    .HasColumnName("pass")
-                    .HasMaxLength(200);
+                    .HasMaxLength(200)
+                    .HasColumnName("pass");
             });
 
             OnModelCreatingPartial(modelBuilder);

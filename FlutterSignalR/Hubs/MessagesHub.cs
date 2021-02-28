@@ -26,39 +26,66 @@ namespace FlutterSignalR.Hubs
         {
             Console.WriteLine(Context.ConnectionId + " disconnected");
             foreach (var id in map)
-            {
-                if (id.Value == Context.ConnectionId) map.Remove(id.Key);
+                if (id.Value == Context.ConnectionId){
+                    map.Remove(id.Key);
+                    break;
             }
-
             await base.OnDisconnectedAsync(exception);
         }
-        public async Task getid(int x)
+        public async Task confid(int id)
         {
-            map.Add(x,Context.ConnectionId);
-            var messagelist = (from m in db.Message where m.Reciever == x select m).ToList();
-            await Clients.Client(map[x]).SendAsync("idok", x);
-            await Clients.Client(map[x]).SendAsync("newmessages", messagelist);
+            map.Add(id,Context.ConnectionId);
+            var messagelist = (from m in db.Messages where m.Receiver == id select m).ToList();
+            await Clients.Client(map[id]).SendAsync("idok", id);
+            await Clients.Client(map[id]).SendAsync("newmessages", messagelist);
+            //foreach (var x in messagelist) db.Messages.Remove(x);
+            db.SaveChanges();
         }
-        public async Task SendMessage(int sender,int receiver,string message)
+        public async Task sendmessage(int sender,int receiver,string message)
         {
             Message m = new Message();
             m.Sender = sender;
-            m.Reciever = receiver;
+            m.Receiver = receiver;
             m.Msg = message;
             m.Date = DateTime.Now;
-            if (map[receiver] != null)
-            {
-
-                db.Message.Add(m);
-                db.SaveChanges();
-            }
+            if (map[receiver] == null) { db.Messages.Add(m); db.SaveChanges(); }
             else
             {
                 List<Message> messagelist = new List<Message>();
                 messagelist.Add(m);
                 await Clients.Client(map[receiver]).SendAsync("newmessages", messagelist);
-
             }
+            
         }
+        public async Task getidname(int id)
+        {
+            var name = (from x in db.Users where x.Id == id select x.Name).First();
+            await Clients.Client(Context.ConnectionId).SendAsync("setidname", id, name);
+        }
+        public int signup(string name,string pass)
+        {
+
+            List<User> usrs = (from x in db.Users where x.Name == name select x).ToList();
+            if (usrs.Count>0) return 0;
+
+            User usr = new User();
+            usr.Name = name;
+            usr.Pass = pass;
+            db.Users.Add(usr);
+            db.SaveChanges();
+            return usr.Id;
+            
+        }
+        public int login(string name,string pass)
+        {
+            try
+            {
+                User usr = (from x in db.Users where x.Name == name && x.Pass == pass select x).First();
+                if(usr!=null)return usr.Id;
+            }
+            catch{}
+            return 0;
+        }
+
     }
 }

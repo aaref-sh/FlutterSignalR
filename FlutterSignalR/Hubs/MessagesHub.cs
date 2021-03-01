@@ -12,11 +12,6 @@ namespace FlutterSignalR.Hubs
         private static readonly Dictionary<int, string> map = new Dictionary<int, string>();
         private static readonly Dictionary<string, int> mp1 = new Dictionary<string, int>();
         lanchatContext db = new lanchatContext();
-        public async Task moveviewfromserver()
-        {
-            await Clients.All.SendAsync("recievenewposition", "Hello mofo\n");
-            Console.WriteLine($"'Hello mofo' sent to app");
-        }
         public override async Task OnConnectedAsync()
         {
             Console.WriteLine(Context.ConnectionId + " connected");

@@ -21,9 +21,15 @@ namespace FlutterSignalR.Hubs
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             Console.WriteLine(Context.ConnectionId + " disconnected");
-            map.Remove(mp1[Context.ConnectionId]);
-            mp1.Remove(Context.ConnectionId);
-            await base.OnDisconnectedAsync(exception);
+            try
+            {
+                map.Remove(mp1[Context.ConnectionId]);
+                mp1.Remove(Context.ConnectionId);
+            }
+            finally
+            {
+                await base.OnDisconnectedAsync(exception);
+            }
         }
         public async Task confid(int id)
         {
@@ -41,11 +47,15 @@ namespace FlutterSignalR.Hubs
             m.Receiver = receiver;
             m.Msg = message;
             m.Date = DateTime.Now;
-            if (map[receiver] == null) { db.Messages.Add(m); db.SaveChanges(); }
-            else
+            try
             {
-                List<Message> messagelist = new List<Message>{m};
+                List<Message> messagelist = new List<Message> { m };
                 await Clients.Client(map[receiver]).SendAsync("newmessages", messagelist);
+
+            }
+            catch
+            {
+                db.Messages.Add(m); db.SaveChanges();
             }
             
         }

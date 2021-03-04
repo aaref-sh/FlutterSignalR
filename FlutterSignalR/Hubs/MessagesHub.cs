@@ -33,8 +33,14 @@ namespace FlutterSignalR.Hubs
         }
         public async Task confid(int id)
         {
-            map.Add(id, Context.ConnectionId);
-            mp1.Add(Context.ConnectionId, id);
+            try{
+                map.Add(id, Context.ConnectionId);
+                mp1.Add(Context.ConnectionId, id);
+            }
+            catch{
+                map[id]= Context.ConnectionId;
+                mp1[Context.ConnectionId]=id;
+            }
             var messagelist = (from m in db.Messages where m.Receiver == id select m).ToList();
             await Clients.Client(Context.ConnectionId).SendAsync("newmessages", messagelist);
             foreach (var x in messagelist) db.Messages.Remove(x);
@@ -42,6 +48,7 @@ namespace FlutterSignalR.Hubs
         }
         public async Task sendmessage(int sender,int receiver,string message)
         {
+            Console.WriteLine("received a message");
             Message m = new Message();
             m.Sender = sender;
             m.Receiver = receiver;

@@ -92,5 +92,13 @@ namespace FlutterSignalR.Hubs
             return 0;
         }
 
+        public List<User> getonlineusers(){
+            List<User> userlist = new List<User>();
+            foreach(var i in mp1)
+                if(i.Key != Context.ConnectionId)
+                    userlist.Add((from x in db.Users where x.Id == i.Value select x).First());
+            return userlist;
+        }
+
     }
 }

@@ -15,7 +15,7 @@ namespace FlutterSignalR.Hubs
         public override async Task OnConnectedAsync()
         {
             Console.WriteLine(Context.ConnectionId + " connected");
-            await Clients.All.SendAsync("getid");
+            await Clients.Client(Context.ConnectionId).SendAsync("getid");
             await base.OnConnectedAsync();
         }
         public override async Task OnDisconnectedAsync(Exception exception)
